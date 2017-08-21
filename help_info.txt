@@ -1,0 +1,17 @@
+
+prerequisites:
+
+1. pip install -r requirements.txt
+2. imagemagick and poppler-utils
+3. homebrew
+4. brew install mongodb
+5. ln -sfv /usr/local/opt/mongodb/*.plist ~/Library/LaunchAgents
+6. launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mongodb.plist
+7. chmod +x ./allinone.sh
+8. chmod +x ./afterpdf.sh
+
+
+adjustable parameters:
+
+1. fetch_papers.py  line 60, default = 100  this number can be changed
+2. fetch_papers.py  line 83/84, comment out any line of them
