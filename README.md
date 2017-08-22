@@ -8,7 +8,8 @@ This project is forked form Karpathy's original [arxiv sanity preserver](https:/
 2. A new module `inject.py` is added in case that you want to add a few papers to the database by hand.
 3. <ul><li>In localhost, the title of each paper redirects to a local pdf file rather than to the arxiv website, therefore papers can be opened immediately in a new browser tab</li><li>A minimal MathJax is added to the `/static` directory to show LaTeX formulas offline</li></ul>so arxiv-sanity can be used totally offline!
 4. Allow searching by id according to [conor-f's commit](https://github.com/karpathy/arxiv-sanity-preserver/pull/89/commits/93530f972c46a8bec796f49bfe6c105176d1c403)
-5. A Unix shell script is add for convenience
+5. A python script `ex_lib.py` is added to extract all the pdf files in your library to a separate folder, and rename those pdfs to their titles respectively.
+6. A Unix shell script `allinone.sh` is add for convenience
 
 
 ## usage
@@ -54,7 +55,7 @@ parser.add_argument('--max-index', type=int, default=3, help='upper bound on pap
 parser.add_argument('--results-per-iteration', type=int, default=3, help='passed to arxiv API')
 ```
 
-* in line 85, the `offset` parameter controls where to begin downloading. If you set offset=0, then the script starts downloading from the newest article
+* in line 85, the `offset` parameter controls where to begin downloading. If you set offset=0, then the script starts downloading from the newest article. However, if you set offset=len(db), the script starts downloading from where your last download finished.
 
 ```python
  offset = 0
