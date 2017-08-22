@@ -80,7 +80,7 @@ if __name__ == "__main__":
   # main loop where we fetch the new results
   print('database has %d entries at start' % (len(db), ))
   num_added_total = 0
-  inject_count = 5
+  #inject_count = 5
   #offset=len(db) - inject_count
   offset=0
   for i in range(args.start_index, args.max_index, args.results_per_iteration):
