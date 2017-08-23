@@ -57,8 +57,8 @@ if __name__ == "__main__":
                       default='cat:hep-th',
                       help='query used for arxiv API. See http://arxiv.org/help/api/user-manual#detailed_examples')
   parser.add_argument('--start-index', type=int, default=0, help='0 = most recent API result')
-  parser.add_argument('--max-index', type=int, default=3, help='upper bound on paper index we will fetch')
-  parser.add_argument('--results-per-iteration', type=int, default=3, help='passed to arxiv API')
+  parser.add_argument('--max-index', type=int, default=1, help='upper bound on paper index we will fetch')
+  parser.add_argument('--results-per-iteration', type=int, default=1, help='passed to arxiv API')
   parser.add_argument('--wait-time', type=float, default=5.0, help='lets be gentle to arxiv API (in number of seconds)')
   parser.add_argument('--break-on-no-added', type=int, default=1, help='break out early if all returned query papers are already in db? 1=yes, 0=no')
   args = parser.parse_args()

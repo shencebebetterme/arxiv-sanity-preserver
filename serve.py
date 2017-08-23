@@ -453,6 +453,12 @@ def library():
   return render_template('main.html', **ctx)
 
 
+@app.route('/titlepage',methods=['POST'])
+def title_page():
+  pdf_path = request.form['titleRe']
+  os.system('open '+pdf_path)
+  return 'OK'
+
 
 @app.route('/libtoggle', methods=['POST'])
 def review():

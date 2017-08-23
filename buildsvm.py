@@ -14,7 +14,9 @@ num_recommendations = 1000 # papers to recommend per user
 
 if not os.path.isfile(Config.database_path):
   print("the database file as.db should exist. You can create an empty database with sqlite3 as.db < schema.sql")
+  os.system("sqlite3 as.db < schema.sql")
   sys.exit()
+
 
 sqldb = sqlite3.connect(Config.database_path)
 sqldb.row_factory = sqlite3.Row # to return dicts rather than tuples

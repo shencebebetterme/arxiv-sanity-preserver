@@ -113,7 +113,23 @@ function addPapers(num, dynamic) {
     var tdiv = div.append('div').classed('paperdesc', true);
     //tdiv.append('span').classed('ts', true).append('a').attr('href', p.link).attr('target', '_blank').html(p.title);
     
-    tdiv.append('span').classed('ts', true).append('a').attr('href', "static/pdf/".concat(p.link.substring(21,)).concat(".pdf")).attr('target', '_blank').html(p.title);
+    //tdiv.append('span').classed('ts', true).append('a').attr('href', "static/pdf/".concat(p.link.substring(21,)).concat(".pdf")).attr('target', '_blank').html(p.title);
+    var pdf_path = "static/pdf/".concat(p.link.substring(21,)).concat(".pdf")
+    //var pdf_path_abs[ix]=pdf_path
+    //var title_abs[ix]=p.title
+    var title_link=tdiv.append('span').classed('ts', true).append('a');
+    //title_link.attr('href', pdf_path).attr('target', '_blank')
+    title_link.html(p.title)
+    title_link.attr("pdf_path",pdf_path)
+    title_link.on('click',function(elt){
+
+      return function(){
+        var title_path=d3.select(this).attr("pdf_path")
+        $.post("/titlepage",{titleRe:title_path})
+         .done(function(data){if(data=='OK'){elt.attr('style','color:#999');}})
+      }
+    }(title_link))
+
     tdiv.append('br');
     tdiv.append('span').classed('as', true).html(build_authors_html(p.authors));
     tdiv.append('br');
