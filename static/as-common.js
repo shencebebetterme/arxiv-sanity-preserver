@@ -86,6 +86,8 @@ function addPapers(num, dynamic) {
   var root = d3.select("#rtable");
 
   var base_ix = pointer_ix;
+  //var pdf_path_abs=[]
+  //var title_abs=[]
   for(var i=0;i<num;i++) {
     var ix = base_ix + i;
     if(ix >= papers.length) {
@@ -105,16 +107,40 @@ function addPapers(num, dynamic) {
     var p = papers[ix];
     var div = root.append('div').classed('apaper', true).attr('id', p.pid);
 
-  
+    /*
+    var testdiv = div.append('div').classed('testclass', true);
+    testdiv.attr('id', 'testid').html('some test message');
+
+    testdiv.on('click', function(pid, elt){
+      // when the image is clicked, this outmost takes p.pid and saveimg as its two variables
+      return function() {
+        if(username !== '') {
+          // issue the post request to the server
+          $.post("/testpage", {test_message: 'hello world!'})
+           .done(function(data){
+              // toggle state of the image to reflect the state of the server, as reported by response
+              if(data === 'ON') {
+                elt.attr('style','color:red');
+              } else if(data === 'OFF') {
+                elt.attr('style','color:blue');
+              }
+           });
+        } else {
+          alert('you must be logged in to save papers to library.')
+        }
+      }
+    }(p.pid, testdiv));
+    */
+
 
     // Generate OpenURL COinS metadata element -- readable by Zotero, Mendeley, etc.
     var ocoins_span = div.append('span').classed('Z3988', true).attr('title', build_ocoins_str(p));
 
     var tdiv = div.append('div').classed('paperdesc', true);
     //tdiv.append('span').classed('ts', true).append('a').attr('href', p.link).attr('target', '_blank').html(p.title);
-    
-    //tdiv.append('span').classed('ts', true).append('a').attr('href', "static/pdf/".concat(p.link.substring(21,)).concat(".pdf")).attr('target', '_blank').html(p.title);
-    var pdf_path = "static/pdf/".concat(p.link.substring(21,)).concat(".pdf")
+    var rm=p.link.substring(21,);
+    if (rm.indexOf(".")==-1) {rm=rm.substring(7,)};
+    var pdf_path = "static/pdf/".concat(rm).concat(".pdf");
     //var pdf_path_abs[ix]=pdf_path
     //var title_abs[ix]=p.title
     var title_link=tdiv.append('span').classed('ts', true).append('a');

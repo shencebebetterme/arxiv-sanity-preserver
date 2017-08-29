@@ -79,28 +79,40 @@ def get_date(soup):
 
 
 def get_id(idversion):
-	return "<id>http://arxiv.org/abs/"+idversion+"</id>"
-
+	if idversion.find(".")!= -1:
+		# more recent papers
+		return "<id>http://arxiv.org/abs/"+idversion+"</id>"
+	else:
+		return "<id>http://arxiv.org/abs/hep-th/"+idversion+"</id>"
+		#return "<id>http://arxiv.org/abs/"+idversion+"</id>"
 
 def get_links(idversion):
-	links_str="""<link href="http://arxiv.org/abs/"""+idversion+"""" rel="alternate" type="text/html"/><link title="pdf" href="http://arxiv.org/pdf/"""+idversion+"""" rel="related" type="application/pdf"/>"""
-	return links_str
+	if idversion.find(".")!=-1:
+		return """<link href="http://arxiv.org/abs/"""+idversion+"""" rel="alternate" type="text/html"/><link title="pdf" href="http://arxiv.org/pdf/"""+idversion+"""" rel="related" type="application/pdf"/>"""
+	else:
+		return """<link href="http://arxiv.org/abs/hep-th/"""+idversion+"""" rel="alternate" type="text/html"/><link title="pdf" href="http://arxiv.org/pdf/hep-th/"""+idversion+"""" rel="related" type="application/pdf"/>"""
+
+# arxiv primary category
+def get_pc(soup):
+	cy = soup.find("div",class_ = "current").get_text()
+	return "<arxiv:primary_category xmlns:arxiv='http://arxiv.org/schemas/atom' term='" +cy+ "' scheme=\"http://arxiv.org/schemas/atom\"/>"
 
 
 def generate_article_link_cn(idversion):
-	pre="http://cn.arxiv.org/abs/"
-	return pre+idversion
+	if idversion.find(".")!=-1:
+		return "http://cn.arxiv.org/abs/"+idversion
+	else:
+		return "http://cn.arxiv.org/abs/hep-th/"+idversion
 
 def get_tags(soup):
 	cy = soup.find("div",class_ = "current").get_text()
 	return "<tags>" + cy + "</tags>"
 
-def generate_article_link_cn(idversion):
-	pre="http://cn.arxiv.org/abs/"
-	return pre+idversion
+#def get_primary_cat(soup)
 
 def get_soup(cn_url):
 	time.sleep(1.5)
+	print("fetching %s"%cn_url)
 	f = urllib.request.urlopen(cn_url)
 	response = f.read()
 	soup = BeautifulSoup(response,'lxml')
@@ -110,7 +122,7 @@ def get_soup(cn_url):
 def get_xml(iv):
 	cn_url = generate_article_link_cn(iv)
 	soup = get_soup(cn_url)
-	main_part= "<entry>"+get_id(iv)+get_date(soup)+get_title(soup)+get_summary(soup)+get_tags(soup)+get_authors(soup)+get_links(iv)+ "</entry>"
+	main_part= "<entry>"+get_id(iv)+get_date(soup)+get_pc(soup)+get_title(soup)+get_summary(soup)+get_tags(soup)+get_authors(soup)+get_links(iv)+ "</entry>"
 	return main_part
 
 def encode_feedparser_dict(d):
@@ -149,7 +161,7 @@ after="</feed>"
 
 if __name__ == "__main__":
 	#to_inject='1604.07818v1'
-	to_inject = ['1412.6087v3', '1511.04021v3']
+	to_inject = ['1511.04021v3','1412.6087v3','1611.07917v1']
 	# the idversion
 	# term problem need to be soved
 	full_xml = ''
@@ -157,6 +169,7 @@ if __name__ == "__main__":
 		full_xml+=get_xml(iv)
 	
 	full_xml=pre+full_xml+after
+	#print(full_xml)
 	db = pickle.load(open(Config.db_path, 'rb'))
 	parse = feedparser.parse(full_xml)
 	num_added=0
@@ -166,6 +179,8 @@ if __name__ == "__main__":
 		#tag = j['tags']
 		j['_rawid'] = rawid
 		j['_version'] = version
+		#print(j)
+		#j['arxiv_primary_category'] = {'scheme': 'http://arxiv.org/schemas/atom','term': 'hep-th'}
 		#j['tags']=[{'label': None, 'term': tag, 'scheme': 'http://arxiv.org/schemas/atom'}]
 		if not rawid in db or j['_version'] > db[rawid]['_version']:
 			db[rawid] = j
