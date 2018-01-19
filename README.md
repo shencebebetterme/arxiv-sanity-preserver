@@ -36,12 +36,9 @@ $ brew
 $ brew install imagemagick
 ```
 
-<!--* install `pdftotext` according to [this page](http://macappstore.org/pdftotext/)-->
-* install `pdftotext` 
+* install `pdftotext` according to [this page](http://macappstore.org/pdftotext/)
 
-```
-$ brew install caskroom/cask/brew-cask 2> /dev/null
-```
+* install `pdfinfo` according to [this page](http://macappstore.org/pdfinfo/)
 
 * `cd` to arxiv-sanity project directory and do
 
