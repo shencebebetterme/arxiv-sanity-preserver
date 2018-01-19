@@ -38,7 +38,7 @@ $ brew install imagemagick
 
 * install `pdftotext` according to [this page](http://macappstore.org/pdftotext/)
 
-* install `pdfinfo` according to [this page](http://macappstore.org/pdfinfo/)
+* install `pdfinfo` according to [this page](https://stackoverflow.com/questions/34771535/pdfinfo-package-for-mac-os-x), and maybe with some `brew link` commands
 
 * `cd` to arxiv-sanity project directory and do
 
