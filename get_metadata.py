@@ -1,6 +1,6 @@
 """
 Queries arxiv API and downloads papers (the query is a parameter).
-The script is intended to enrich an existing database pickle (by default db.p),
+The script is intended to enrich an existing database pickle (by default meta_db.p),
 so this file will be loaded first, and then new results will be added to it.
 """
 
@@ -13,7 +13,7 @@ import urllib.request
 import feedparser
 
 from utils import Config, safe_pickle_dump
-
+from urllib.request import urlopen,Request
 
 
 
@@ -49,21 +49,20 @@ def parse_arxiv_url(url):
   return parts[0], int(parts[1])
 
 if __name__ == "__main__":
+  myheaders={}
+  myheaders["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0"
 
   # parse input arguments
   parser = argparse.ArgumentParser()
   parser.add_argument('--search-query', type=str,
                       #default='cat:cs.CV+OR+cat:cs.AI+OR+cat:cs.LG+OR+cat:cs.CL+OR+cat:cs.NE+OR+cat:stat.ML',
                       default='cat:hep-th',
-                      #default='au:Edward Witten', ##author
-                      #default='ti:quantum%20chaos', ##title
-                      #default='abs:lecture%20notes', ##abstract
                       help='query used for arxiv API. See http://arxiv.org/help/api/user-manual#detailed_examples')
   parser.add_argument('--start-index', type=int, default=0, help='0 = most recent API result')
-  parser.add_argument('--max-index', type=int, default=500, help='upper bound on paper index we will fetch')
+  parser.add_argument('--max-index', type=int, default=1000, help='upper bound on paper index we will fetch')
   parser.add_argument('--results-per-iteration', type=int, default=100, help='passed to arxiv API')
   parser.add_argument('--wait-time', type=float, default=5.0, help='lets be gentle to arxiv API (in number of seconds)')
-  parser.add_argument('--break-on-no-added', type=int, default=1, help='break out early if all returned query papers are already in db? 1=yes, 0=no')
+  parser.add_argument('--break-on-no-added', type=int, default=1, help='break out early if all returned query papers are already in meta_db? 1=yes, 0=no')
   args = parser.parse_args()
 
   # misc hardcoded variables
@@ -72,32 +71,29 @@ if __name__ == "__main__":
 
   # lets load the existing database to memory
   try:
-    db = pickle.load(open(Config.db_path, 'rb'))
+    meta_db = pickle.load(open(Config.metadata_path, 'rb'))
   except Exception as e:
     print('error loading existing database:')
     print(e)
     print('starting from an empty database')
-    db = {}
+    meta_db = {}
 
   # -----------------------------------------------------------------------------
   # main loop where we fetch the new results
-  print('database has %d entries at start' % (len(db), ))
+  print('database has %d entries at start' % (len(meta_db), ))
+  timeout_secs=15
   num_added_total = 0
   inject_count = 0
-  #offset=len(db) - inject_count
-  offset=0
+  offset=len(meta_db) - inject_count
+  #offset=0
   for i in range(args.start_index, args.max_index, args.results_per_iteration):
 
-    print("Results \033[31m%i - %i\033[0m" % (i,i+args.results_per_iteration))
+    print("Results %i - %i" % (i,i+args.results_per_iteration))
     query = 'search_query=%s&sortBy=lastUpdatedDate&start=%i&max_results=%i' % (args.search_query,
                                                          i+offset, args.results_per_iteration)
-    
-    
-    #return #(max_results) results, starting from i+offset
-    #print("query=%s\n\n\n"%query)
-    with urllib.request.urlopen(base_url+query) as url:
+    req = Request(base_url+query,None,myheaders)
+    with urlopen(req,None,timeout_secs) as url:
       response = url.read()
-    #print(response,"\n\n\n")
     parse = feedparser.parse(response)
     num_added = 0
     num_skipped = 0
@@ -109,13 +105,11 @@ if __name__ == "__main__":
       rawid, version = parse_arxiv_url(j['id'])
       j['_rawid'] = rawid
       j['_version'] = version
-      #print(rawid)
 
       # add to our database if we didn't have it before, or if this is a new version
-      #if not rawid in db or j['_version'] > db[rawid]['_version']:
-      if not rawid in db:
+      if not rawid in meta_db or j['_version'] > meta_db[rawid]['_version']:
         # save a big dictionary j to the database
-        db[rawid] = j
+        meta_db[rawid] = j
         #print(j['tags'])
         print('Updated %s added %s' % (j['updated'].encode('utf-8'), j['title'].encode('utf-8')))
         num_added += 1
@@ -130,6 +124,7 @@ if __name__ == "__main__":
       print('Received no results from arxiv. Rate limiting? Exiting. Restart later maybe.')
       print(response)
       break
+
     if num_added == 0 and args.break_on_no_added == 1:
       print('No new papers were added. Assuming no new papers exist. Exiting.')
       break
@@ -139,12 +134,6 @@ if __name__ == "__main__":
 
   # save the database before we quit, if we found anything new
   if num_added_total > 0:
-    print('Saving database with %d papers to %s' % (len(db), Config.db_path))
-    safe_pickle_dump(db, Config.db_path)
-
-#http://export.arxiv.org/api/query?search_query=cat:hep-th&sortBy=lastUpdatedDate&start=1&max_results=5
-#http://export.arxiv.org/api/query?search_query=cat:hep-th&start=25000&max_results=5
-#http://export.arxiv.org/api/query?id_list=1801.00010,0706.1230
-#http://export.arxiv.org/api/query?search_query=au:edward%20witten
-
+    print('Saving database with %d papers to %s' % (len(meta_db), Config.metadata_path))
+    safe_pickle_dump(meta_db, Config.metadata_path)
 
