@@ -87,6 +87,7 @@ def papers_search(qraw):
   # e.g. if qraw = "localization in space"
   # then qparts = ['localization', 'in', 'space']
   # use reverse index and accumulate scores
+  print(qparts)
   scores = []
   if isvalidid(qraw) is not None:
     # now qraw should be like 1611.00675v4
@@ -452,12 +453,24 @@ def library():
   ctx = default_context(papers, render_format='library', msg=msg)
   return render_template('main.html', **ctx)
 
+"""
+@app.route('/testpage', methods=['POST'])
+def test_func():
+  if not g.user:
+    return 'NO'
+  uid = session['user_id']
+  passed_message = request.form['test_message']
+  print(passed_message)
+  return 'OFF'
+"""
+
 
 @app.route('/titlepage',methods=['POST'])
 def title_page():
   pdf_path = request.form['titleRe']
   os.system('open '+pdf_path)
   return 'OK'
+
 
 
 @app.route('/libtoggle', methods=['POST'])

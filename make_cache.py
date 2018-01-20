@@ -54,15 +54,12 @@ CACHE['date_sorted_pids'] = [sp[1] for sp in scores]
 
 # compute top papers in peoples' libraries
 print('computing top papers...')
-try:
-  libs = sqldb.execute('''select * from library''').fetchall()
-  counts = {}
-  for lib in libs:
-    pid = lib['paper_id']
-    counts[pid] = counts.get(pid, 0) + 1
-  top_paper_counts = sorted([(v,k) for k,v in counts.items() if v > 0], reverse=True)
-except:
-  top_paper_counts={}
+libs = sqldb.execute('''select * from library''').fetchall()
+counts = {}
+for lib in libs:
+  pid = lib['paper_id']
+  counts[pid] = counts.get(pid, 0) + 1
+top_paper_counts = sorted([(v,k) for k,v in counts.items() if v > 0], reverse=True)
 CACHE['top_sorted_pids'] = [q[1] for q in top_paper_counts]
 
 # some utilities for creating a search index for faster search

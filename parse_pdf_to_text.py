@@ -29,7 +29,7 @@ for i,f in enumerate(files): # there was a ,start=1 here that I removed, can't r
 
   txt_basename = f + '.txt'
   if txt_basename in have:
-    print('%d/%d skipping %s, already exists.' % (i, len(files), txt_basename, ))
+    #print('%d/%d skipping %s, already exists.' % (i, len(files), txt_basename, ))
     continue
 
   pdf_path = os.path.join(Config.pdf_dir, f)
@@ -38,7 +38,7 @@ for i,f in enumerate(files): # there was a ,start=1 here that I removed, can't r
   #cmd = "pdftotext %s %s" % (pdf_path, txt_path)
   os.system(cmd)
 
-  print('%d/%d %s' % (i, len(files), cmd))
+  print('%d/%d \033[31m%s\033[0m' % (i, len(files), txt_path))
 
   # check output was made
   if not os.path.isfile(txt_path):
@@ -48,6 +48,8 @@ for i,f in enumerate(files): # there was a ,start=1 here that I removed, can't r
     #print("%d/%d file removed!"%(c,len(files)))
     print('there was a problem with parsing %s to text, creating an empty text file.' % (pdf_path, ))
     os.system('touch ' + txt_path) # create empty file, but it's a record of having tried to convert
+    #save null txt file info.
+    os.system("touch data/corrupted_file/"+txt_basename)
 
   time.sleep(0.01) # silly way for allowing for ctrl+c termination
 

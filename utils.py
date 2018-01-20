@@ -10,6 +10,7 @@ import tempfile
 class Config(object):
     # main paper information repo file
     db_path = 'db.p'
+    metadata_path = 'meta.p'
     # intermediate processing folders
     #pdf_dir = os.path.join('data', 'pdf')
     pdf_dir = os.path.join('static', 'pdf')
@@ -29,6 +30,9 @@ class Config(object):
     beg_for_hosting_money = 1 # do we beg the active users randomly for money? 0 = no.
     banned_path = 'banned.txt' # for twitter users who are banned
     tmp_dir = 'tmp'
+    error_pdfs=[]
+    pdf_download_count=0
+    total_download_count=1
 
 # Context managers for atomic writes courtesy of
 # http://stackoverflow.com/questions/2333872/atomic-writing-to-file-with-python
@@ -100,5 +104,5 @@ def strip_version(idstr):
 
 # "1511.08198v1" is an example of a valid arxiv id that we accept
 def isvalidid(pid):
-  #return re.match('^\d+\.\d+(v\d+)?$', pid)
   return re.match('^\d+(\.)?\d+(v\d+)?$', pid)
+  #return re.match('^\d+\.\d+(v\d+)?$', pid)

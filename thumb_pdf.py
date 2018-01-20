@@ -10,6 +10,7 @@ from subprocess import Popen
 
 from utils import Config
 
+start_time=time.time()
 # make sure imagemagick is installed
 if not shutil.which('convert'): # shutil.which needs Python 3.3+
   print("ERROR: you don\'t have imagemagick installed. Install it first before calling this script")
@@ -25,15 +26,22 @@ if not os.path.exists(Config.tmp_dir): os.makedirs(Config.tmp_dir)
 files_in_pdf_dir = os.listdir(pdf_dir)
 pdf_files = [x for x in files_in_pdf_dir if x.endswith('.pdf')] # filter to just pdfs, just in case
 
+# let the computer have some rest since this step consumes much resorces
+#number_count = 0
+
 # iterate over all pdf files and create the thumbnails
 for i,p in enumerate(pdf_files):
+  
   pdf_path = os.path.join(pdf_dir, p)
   thumb_path = os.path.join(Config.thumbs_dir, p + '.jpg')
 
   if os.path.isfile(thumb_path): 
-    print("skipping %s, thumbnail already exists." % (pdf_path, ))
+    #print("skipping %s, thumbnail already exists." % (pdf_path, ))
     continue
-
+  #number_count+=1
+  #if number_count%100 == 0:
+  #  print("\n\nsleeping 60 seconds, please wait...\n\n")
+  #  time.sleep(60)
   print("%d/%d processing %s" % (i, len(pdf_files), p))
 
   # take first 8 pages of the pdf ([0-7]), since 9th page are references
@@ -78,10 +86,21 @@ for i,p in enumerate(pdf_files):
     # failed to render pdf, replace with missing image
     missing_thumb_path = os.path.join('static', 'missing.jpg')
     os.system('cp %s %s' % (missing_thumb_path, thumb_path))
-    print("could not render pdf, creating a missing image placeholder")
+    print("\033[31mcould not render pdf, creating a missing image placeholder\033[0m")
   else:
     cmd = "montage -mode concatenate -quality 80 -tile x1 %s %s" % (os.path.join(Config.tmp_dir, 'thumb-*.png'), thumb_path)
     print(cmd)
     os.system(cmd)
 
   time.sleep(0.01) # silly way for allowing for ctrl+c termination
+
+  if (time.time()-start_time)>100:
+    start_time=time.time()
+    print("\n\nsleeping 60 seconds\n")
+    time.sleep(60)
+
+
+
+
+
+
